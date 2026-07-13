@@ -1,0 +1,12 @@
+# Node modules
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Uploaded files (Optional, but good so you don't push random test PDFs)
+backend/uploads/
