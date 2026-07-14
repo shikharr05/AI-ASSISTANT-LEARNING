@@ -92,23 +92,26 @@ export const submitQuiz = async (req, res, next) => {
     //process answers
     let correctCount = 0;
     const userAnswers = [];
+
+    const processedIndices = new Set();
     
     answers.forEach(answer => {
         const { questionIndex, selectedAnswer } = answer;
-        if (questionIndex < quiz.questions.length) {
+        if (
+          questionIndex < quiz.questions.length &&
+          !processedIndices.has(questionIndex)
+        ) {
+          processedIndices.add(questionIndex);
+
           const question = quiz.questions[questionIndex];
+
+          // Re-use your robust comparison logic here too!
           const selectedIndex = question.options.findIndex(
             (opt) => opt === selectedAnswer,
           );
-
-          // 2. Extract the correct index from "O1", "O2", etc.
           const correctIndex =
             parseInt(question.correctAnswer.substring(1)) - 1;
-
-          // 3. Compare the indexes!
           const isCorrect = selectedIndex === correctIndex;
-
-          if (isCorrect) correctCount++;
 
           if (isCorrect) correctCount++;
 
@@ -122,7 +125,10 @@ export const submitQuiz = async (req, res, next) => {
     });
 
     //calculate marks
-    const score = Math.round((correctCount / quiz.totalQuestions) * 100);
+    const score = Math.min(
+      100,
+      Math.round((correctCount / quiz.questions.length) * 100),
+    );
 
     //update quiz
     quiz.userAnswers = userAnswers;
