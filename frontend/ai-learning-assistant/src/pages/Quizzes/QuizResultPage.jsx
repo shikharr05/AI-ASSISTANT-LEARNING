@@ -144,17 +144,37 @@ const QuizResultPage = () => {
       <div className="space-y-6">
         <div className="flex items-center gap-3 mb-2">
           <BookOpen className="w-5 h-5 text-slate-600" strokeWidth={2} />
-          <h3 className="text-lg font-semibold text-slate-900">Detailed Review</h3>
+          <h3 className="text-lg font-semibold text-slate-900">
+            Detailed Review
+          </h3>
         </div>
 
         {detailedResults.map((result, index) => {
           const userAnswerIndex = result.options.findIndex(
-            (opt) => opt === result.selectedAnswer,
+            (opt) =>
+              opt?.trim().toLowerCase() ===
+              result.selectedAnswer?.trim().toLowerCase(),
           );
-          const correctAnswerIndex = result.correctAnswer.startsWith("O")
-            ? parseInt(result.correctAnswer.substring(1)) - 1
-            : result.options.findIndex((opt) => opt === result.correctAnswer);
-          const isCorrect = result.isCorrect;
+          let correctAnswerIndex = -1;
+          const correctStr = result.correctAnswer?.trim().toLowerCase();
+          correctAnswerIndex = result.options.findIndex(
+            (opt) => opt?.trim().toLowerCase() === correctStr,
+          );
+
+          // Fallback: If no direct match, check if AI returned a format like "Option 2", "Option B", or "O2"
+          if (correctAnswerIndex === -1 && result.correctAnswer) {
+            // Extract any number from the AI's answer string
+            const match = result.correctAnswer.match(/\d+/);
+            if (match) {
+              // If it found a number (like the '2' in "Option 2"), convert it to a zero-based array index
+              correctAnswerIndex = parseInt(match[0]) - 1;
+            }
+          }
+
+          // 3. Determine if the question was correct based on our robust indexes
+          // We override result.isCorrect just in case the backend evaluation also suffered from the whitespace bug
+          const isActuallyCorrect =
+            userAnswerIndex === correctAnswerIndex && userAnswerIndex !== -1;
 
           return (
             <div
@@ -179,7 +199,7 @@ const QuizResultPage = () => {
                       : "bg-rose-50 border-2 border-rose-200"
                   }`}
                 >
-                  {isCorrect ? (
+                  {isActuallyCorrect ? (
                     <CheckCircle2
                       className="w-5 h-5 text-emerald-600"
                       strokeWidth={2.5}
@@ -196,7 +216,7 @@ const QuizResultPage = () => {
                 {result.options.map((option, optIndex) => {
                   const isCorrectOption = optIndex === correctAnswerIndex;
                   const isUserAnswer = optIndex === userAnswerIndex;
-                  const isWrongAnswer = isUserAnswer && !isCorrect;
+                  const isWrongAnswer = isUserAnswer && !isCorrectOption;
 
                   return (
                     <div
@@ -224,7 +244,10 @@ const QuizResultPage = () => {
                         <div className="flex items-center gap-2">
                           {isCorrectOption && (
                             <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 border border-emerald-300 rounded-lg text-xs font-semibold text-emerald-700">
-                              <CheckCircle2 className="w-3 h-3" strokeWidth={2.5} />
+                              <CheckCircle2
+                                className="w-3 h-3"
+                                strokeWidth={2.5}
+                              />
                               Correct
                             </span>
                           )}
@@ -246,11 +269,18 @@ const QuizResultPage = () => {
                 <div className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border border-slate-200 rounded-xl">
                   <div className="flex items-start gap-3">
                     <div className="shrink-0 w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center mt-0.5">
-                      <BookOpen className="w-4 h-4 text-slate-600" strokeWidth={2} />
+                      <BookOpen
+                        className="w-4 h-4 text-slate-600"
+                        strokeWidth={2}
+                      />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">Explanation</p>
-                      <p className="text-sm text-slate-800 leading-relaxed">{result.explanation}</p>
+                      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">
+                        Explanation
+                      </p>
+                      <p className="text-sm text-slate-800 leading-relaxed">
+                        {result.explanation}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -260,17 +290,19 @@ const QuizResultPage = () => {
         })}
       </div>
 
-
       {/* Action Buttons */}
       <div className="mt-8 flex justify-center">
         <Link to={`/documents/${quiz.document._id}`}>
-        <button className="group relative px-8 h-12 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/25 active:scale-95 overflow-hidden">
+          <button className="group relative px-8 h-12 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/25 active:scale-95 overflow-hidden">
             <span className="relative z-10 flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200  " strokeWidth={2.5} />
-                Return to Document
+              <ArrowLeft
+                className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200  "
+                strokeWidth={2.5}
+              />
+              Return to Document
             </span>
             <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-        </button>
+          </button>
         </Link>
       </div>
     </div>
@@ -278,8 +310,6 @@ const QuizResultPage = () => {
 };
 
 export default QuizResultPage;
-
-
 
 // =================== QUIZ RESULT PAGE ===================
 
@@ -294,7 +324,6 @@ export default QuizResultPage;
 // 5. Highlight correct & incorrect answers
 // 6. Show explanations
 
-
 // ========================================================
 // States
 // ========================================================
@@ -304,7 +333,6 @@ export default QuizResultPage;
 //
 // loading
 // Controls spinner while fetching results.
-
 
 // ========================================================
 // Fetch Results
@@ -317,7 +345,6 @@ export default QuizResultPage;
 // GET Quiz Results
 //
 // Stores response in results state.
-
 
 // ========================================================
 // Statistics
@@ -335,7 +362,6 @@ export default QuizResultPage;
 // incorrectAnswers
 // totalQuestions - correctAnswer.
 
-
 // ========================================================
 // Score Helpers
 // ========================================================
@@ -345,7 +371,6 @@ export default QuizResultPage;
 //
 // getScoreMessage()
 // Returns motivational message according to score.
-
 
 // ========================================================
 // Question Review
@@ -367,7 +392,6 @@ export default QuizResultPage;
 //
 // Red -> Wrong selected option.
 
-
 // ========================================================
 // Explanation
 // ========================================================
@@ -376,7 +400,6 @@ export default QuizResultPage;
 // display explanation card.
 //
 // Otherwise nothing is rendered.
-
 
 // ========================================================
 // Flow
