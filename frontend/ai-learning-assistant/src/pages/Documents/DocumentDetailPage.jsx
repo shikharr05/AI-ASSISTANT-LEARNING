@@ -60,7 +60,7 @@ const DocumentDetailPage = () => {
       return filePath;
     }
 
-    const baseUrl = BASE_URL;
+    const baseUrl = BASE_URL || "http://localhost:8000";
     return `${baseUrl}${filePath.startsWith("/") ? "" : "/"}${filePath}`;
   };
 
