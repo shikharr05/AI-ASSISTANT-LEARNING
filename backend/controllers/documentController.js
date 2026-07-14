@@ -145,8 +145,8 @@ const processPDF = async (documentId, filePath, userId) => {
     // THIS IS THE MAGIC CLEANUP!
     // It runs no matter what happens above.
     try {
-      await fs.unlink(filePath);
-      console.log(`Cleaned up local file: ${filePath}`);
+      // await fs.unlink(filePath);
+      // console.log(`Cleaned up local file: ${filePath}`);
     } catch (cleanupError) {
       console.error(`Failed to delete local file ${filePath}:`, cleanupError);
     }
@@ -311,14 +311,11 @@ export const deleteDocument = async (req, res, next) => {
         fileName,
       );
       // 3. Delete it!
-      if (fs.existsSync(localFilePath)) {
-        fs.unlinkSync(localFilePath); // Deletes it if it exists
-      } else {
-        // Just logs a friendly note instead of throwing a massive ENOENT error
-        console.log(
-          `Note: File ${fileName} was already missing from the hard drive.`,
-        );
-      }
+      await fs.access(localFilePath);
+
+      // 2. If access is successful, delete it
+      await fs.unlink(localFilePath);
+      console.log(`Successfully deleted local file: ${fileName}`);
     } catch (err) {
       console.error("Could not delete file from your system: ", err.message);
     }
