@@ -24,6 +24,7 @@ import ChatInterface from "../../components/chat/ChatInterface";
 import AIActions from "../../components/ai/AIActions";
 import FlashcardManager from "../../components/flashcards/FlashcardManager";
 import QuizManager from "../../components/quizzes/QuizManager";
+import { BASE_URL } from "../../utils/apiPaths";
 
 const DocumentDetailPage = () => {
   const { id } = useParams();
@@ -59,7 +60,7 @@ const DocumentDetailPage = () => {
       return filePath;
     }
 
-    const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const baseUrl = BASE_URL;
     return `${baseUrl}${filePath.startsWith("/") ? "" : "/"}${filePath}`;
   };
 
