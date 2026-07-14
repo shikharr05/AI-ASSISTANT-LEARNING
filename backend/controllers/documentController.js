@@ -38,8 +38,8 @@ export const uploadDocument = async (req, res, next) => {
     }
 
     //construct the url for the uploaded file
-    const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
-    const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
+    //const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
+    const fileUrl = `/uploads/documents/${req.file.filename}`;
 
     //create document record
     //yaha hamne sirf document ki initial details daali hai... for text i.e present in document we need to parse it first wo hamne processPDF function ke andar krke and uske chunks banake daale hai fir Document mai.
