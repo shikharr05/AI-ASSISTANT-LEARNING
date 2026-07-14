@@ -97,13 +97,18 @@ export const submitQuiz = async (req, res, next) => {
         const { questionIndex, selectedAnswer } = answer;
         if (questionIndex < quiz.questions.length) {
           const question = quiz.questions[questionIndex];
-          // Replace this line:
-          // const isCorrect = selectedAnswer === question.correctAnswer
+          const selectedIndex = question.options.findIndex(
+            (opt) => opt === selectedAnswer,
+          );
 
-          // With this robust version:
-          const isCorrect =
-            selectedAnswer?.trim().toLowerCase() ===
-            question.correctAnswer?.trim().toLowerCase();
+          // 2. Extract the correct index from "O1", "O2", etc.
+          const correctIndex =
+            parseInt(question.correctAnswer.substring(1)) - 1;
+
+          // 3. Compare the indexes!
+          const isCorrect = selectedIndex === correctIndex;
+
+          if (isCorrect) correctCount++;
 
           if (isCorrect) correctCount++;
 
