@@ -59,7 +59,10 @@ axiosInstance.interceptors.response.use(
       } else if (error.response.status === 401) {
         localStorage.removeItem("token");
         // Force the user back to the login page
-        window.location.href = "/login";
+        const currentPath = window.location.pathname;
+        if (currentPath !== "/login" && currentPath !== "/register") {
+          window.location.href = "/login";
+        }
       }
     }  else if (error.code === "ECONNABORTED") {
       console.error("Request Timeout! Please try again later.");
