@@ -194,7 +194,7 @@ const QuizResultPage = () => {
                 </div>
                 <div
                   className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
-                    isCorrect
+                    isActuallyCorrect
                       ? "bg-emerald-50 border-2 border-emerald-200"
                       : "bg-rose-50 border-2 border-rose-200"
                   }`}

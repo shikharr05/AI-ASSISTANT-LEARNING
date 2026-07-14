@@ -95,18 +95,24 @@ export const submitQuiz = async (req, res, next) => {
     
     answers.forEach(answer => {
         const { questionIndex, selectedAnswer } = answer;
-        if(questionIndex < quiz.questions.length){
-            const question = quiz.questions[questionIndex];
-            const isCorrect = selectedAnswer === question.correctAnswer
+        if (questionIndex < quiz.questions.length) {
+          const question = quiz.questions[questionIndex];
+          // Replace this line:
+          // const isCorrect = selectedAnswer === question.correctAnswer
 
-            if(isCorrect) correctCount++;
+          // With this robust version:
+          const isCorrect =
+            selectedAnswer?.trim().toLowerCase() ===
+            question.correctAnswer?.trim().toLowerCase();
 
-            userAnswers.push({
-                questionIndex,
-                selectedAnswer,
-                isCorrect,
-                answeredAt: new Date(),
-            });
+          if (isCorrect) correctCount++;
+
+          userAnswers.push({
+            questionIndex,
+            selectedAnswer,
+            isCorrect,
+            answeredAt: new Date(),
+          });
         }
     });
 
